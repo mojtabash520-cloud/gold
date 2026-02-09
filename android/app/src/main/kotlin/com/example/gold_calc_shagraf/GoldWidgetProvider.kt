@@ -1,9 +1,11 @@
 package com.example.gold_calc_shagraf
 
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.SharedPreferences
 import android.widget.RemoteViews
+import es.antonborri.home_widget.HomeWidgetBackgroundIntent
+import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetProvider
 
 class GoldWidgetProvider : HomeWidgetProvider() {
@@ -11,15 +13,22 @@ class GoldWidgetProvider : HomeWidgetProvider() {
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
-        widgetData: SharedPreferences
+        widgetData: android.content.SharedPreferences
     ) {
-        appWidgetIds.forEach { widgetId ->
+        for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout).apply {
-                // دریافت قیمت ذخیره شده توسط فلاتر
-                val price = widgetData.getString("price_data", "درحال دریافت...")
-                setTextViewText(R.id.widget_price, price)
+                // هماهنگ‌سازی با آی‌دی‌های داخل XML
+                val price = widgetData.getString("tv_price", "---")
+                setTextViewText(R.id.tv_price, price)
+                
+                // باز شدن اپلیکیشن با کلیک روی ویجت
+                val pendingIntent = HomeWidgetLaunchIntent.getActivity(
+                    context,
+                    MainActivity::class.java
+                )
+                setOnClickPendingIntent(R.id.widget_root, pendingIntent)
             }
-            appWidgetManager.updateAppWidget(widgetId, views)
+            appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
 }
