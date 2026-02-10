@@ -31,7 +31,15 @@ String toPersian(String input) {
   return input;
 }
 
-// --- فرمتر پیشرفته اعداد ---
+// --- دریافت زمان جاری فارسی (ساعت و تاریخ) ---
+String getCurrentPersianTime() {
+  final now = DateTime.now();
+  // فرمت ساده ساعت و دقیقه
+  final formatter = DateFormat('HH:mm'); 
+  return "بروزرسانی: ${toPersian(formatter.format(now))}";
+}
+
+// --- فرمتر ---
 class DecimalInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -126,8 +134,9 @@ void callbackDispatcher() {
     double? price = await getRealGoldPrice();
     if (price != null) {
       final formatter = NumberFormat("#,###", "en_US");
-      // ارسال عدد فارسی به ویجت
+      // ارسال داده‌ها به ویجت
       await HomeWidget.saveWidgetData<String>('tv_price', toPersian(formatter.format(price)));
+      await HomeWidget.saveWidgetData<String>('tv_date', getCurrentPersianTime());
       await HomeWidget.updateWidget(name: androidWidgetName, androidName: androidWidgetName);
     }
     return Future.value(true);
@@ -225,8 +234,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _calc1(); _calc2();
       if (!kIsWeb && p != null) {
         try { 
-          // ذخیره و آپدیت ویجت با عدد فارسی
           await HomeWidget.saveWidgetData('tv_price', toPersian(_fmt.format(_price))); 
+          await HomeWidget.saveWidgetData('tv_date', getCurrentPersianTime());
           await HomeWidget.updateWidget(name: androidWidgetName); 
         } catch (_) {}
       }
@@ -274,7 +283,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 Padding(padding: const EdgeInsets.symmetric(horizontal: 25), child: Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: const LinearGradient(colors: [kGoldLight, kGoldDark]), borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 15, offset: Offset(0, 10))]), child: Column(children: [
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("طلای ۱۸ عیار", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(10)), child: Text(_priceSource, style: const TextStyle(fontSize: 10)))]),
                   const SizedBox(height: 15),
-                  // نمایش قیمت با اعداد فارسی
                   _loading ? const CircularProgressIndicator(color: Colors.white) : Text(toPersian(_fmt.format(_price)), style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, letterSpacing: -1)),
                   const Text("تومان / گرم", style: TextStyle(fontWeight: FontWeight.w500)),
                   const SizedBox(height: 15),
